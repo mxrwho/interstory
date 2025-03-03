@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Story</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; position: relative; }
+
+        .story-frame {
+            max-width: 800px; 
+            height: 400px; 
+            margin: auto;
+            padding: 20px;
+            background-color: transparent; 
+            overflow-y: auto;  
+            position: relative;
+            border: 1px solid #ccc; 
+        }
+
+        .story-container {
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .sentence {
+            font-size: 20px;
+            line-height: 1.6;
+            display: inline-block;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .hidden {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .word {
+            text-decoration: underline;
+            color: blue;
+            cursor: pointer;
+        }
+
+        .word:hover {
+            color: darkblue;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Story</h1>
+    <div class="story-frame">
+        <div id="story" class="story-container">
+            <span class="sentence" id="part1">You are a <span class="word" data-options="horrible,kind,wonderful,brilliant" data-audio="audio/horrible.mp3, audio/kind.mp3, audio/wonderful.mp3, audio/brilliant.mp3">horrible</span> person.</span>
+            <span class="sentence" id="part2"> The day was <span class="word" data-options="terrible,bright,joyful,magnificent" data-audio="audio/terrible.mp3, audio/bright.mp3, audio/joyful.mp3, audio/magnificent.mp3">terrible</span>,</span>
+            <span class="sentence" id="part3"> and you managed to find <span class="word" data-options="nothing,hope,love,friendship" data-audio="audio/nothing.mp3, audio/hope.mp3, audio/love.mp3, audio/friendship.mp3">nothing</span>.</span>
+        </div>
+    </div>
+
+    <script>
+        let sentenceIndex = 0; 
+        let verticalOffset = 40; 
+
+        document.querySelectorAll('.word').forEach(word => {
+            word.addEventListener('click', () => {
+                const options = word.getAttribute('data-options').split(',');
+                const audioFiles = word.getAttribute('data-audio').split(',');
+                
+                
+                const wordText = word.textContent.replace(/[.,!?;:]/g, '');
+                const currentIndex = options.indexOf(wordText);
+                const nextIndex = (currentIndex + 1) % options.length;
+
+              
+                word.textContent = options[nextIndex];
+
+               
+                const punctuation = word.getAttribute('data-punctuation') || '';
+                word.textContent += punctuation;
+
+               
+                const audioFile = audioFiles[nextIndex];
+                console.log('Playing audio for word:', word.textContent, 'Audio file:', audioFile); 
+
+              
+                const audio = new Audio(audioFile);
+                audio.play();
+
+                const sentence = word.closest('.sentence'); 
+                const sentences = document.querySelectorAll('.sentence');
+
+                sentence.classList.add('hidden');
+
+                setTimeout(() => {
+                    const lastSentence = sentences[sentenceIndex];
+
+                    
+                    sentence.classList.remove('hidden');
+                    sentence.style.position = "absolute";
+                    sentence.style.left = `${lastSentence.offsetLeft + lastSentence.offsetWidth + 10}px`;
+                    sentence.style.top = `${lastSentence.offsetTop + verticalOffset}px`;
+
+                    sentenceIndex = (sentenceIndex + 1) % sentences.length;
+                    verticalOffset += 40;
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>
